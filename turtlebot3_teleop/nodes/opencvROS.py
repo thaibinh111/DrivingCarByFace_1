@@ -39,29 +39,35 @@ if os.name == 'nt':
 else:
   import tty, termios
 
-BURGER_MAX_LIN_VEL = 1
-BURGER_MAX_ANG_VEL = 3
+# BURGER_MAX_LIN_VEL = 1
+# BURGER_MAX_ANG_VEL = 3
 
-WAFFLE_MAX_LIN_VEL = 0.26
-WAFFLE_MAX_ANG_VEL = 1.82
+# WAFFLE_MAX_LIN_VEL = 0.26
+# WAFFLE_MAX_ANG_VEL = 1.82
 
-LIN_VEL_STEP_SIZE = 0.1
-ANG_VEL_STEP_SIZE = 0.2
+# LIN_VEL_STEP_SIZE = 0.1
+# ANG_VEL_STEP_SIZE = 0.2
 
 msg = """
 Control Your TurtleBot3!
 ---------------------------
-Moving around:
-        w
-   a    s    d
-        x
+ 
+ ________________________________
+|           Quit zone             |
+|________________________________ |
+|                |                |
+|                |                |
+|                |                |
+|   Left zone    | Right zone     |
+|________________|________________|
 
-w/x : increase/decrease linear velocity (Burger : ~ 0.22, Waffle and Waffle Pi : ~ 0.26)
-a/d : increase/decrease angular velocity (Burger : ~ 2.84, Waffle and Waffle Pi : ~ 1.82)
-
-space key, s : force stop
-
-CTRL-C to quit
+Forward: face in the middle and the face square heightand width smaller than that of the cam sceen
+Backward: face in the middle and the face square heightand width bigger than that of the cam sceen
+Rotate Left: entire face need to be in the left zone
+Rotate Right: entire face need to be in the right zone
+Stop: face undetected
+ 
+Quit: your face need to reach the quit zone 
 """
 
 e = """
@@ -92,45 +98,45 @@ cap = cv2.VideoCapture(camera_id)
 def vels(target_linear_vel, target_angular_vel):
     return "currently:\tlinear vel %s\t angular vel %s " % (target_linear_vel,target_angular_vel)
 
-def makeSimpleProfile(output, input, slop):
-    if input > output:
-        output = min( input, output + slop )
-    elif input < output:
-        output = max( input, output - slop )
-    else:
-        output = input
+# def makeSimpleProfile(output, input, slop):
+#     if input > output:
+#         output = min( input, output + slop )
+#     elif input < output:
+#         output = max( input, output - slop )
+#     else:
+#         output = input
 
-    return output
+#     return output
 
-def constrain(input, low, high):
-    if input < low:
-      input = low
-    elif input > high:
-      input = high
-    else:
-      input = input
+# def constrain(input, low, high):
+#     if input < low:
+#       input = low
+#     elif input > high:
+#       input = high
+#     else:
+#       input = input
 
-    return input
+#     return input
 
-def checkLinearLimitVelocity(vel):
-    if turtlebot3_model == "burger":
-      vel = constrain(vel, -BURGER_MAX_LIN_VEL, BURGER_MAX_LIN_VEL)
-    elif turtlebot3_model == "waffle" or turtlebot3_model == "waffle_pi":
-      vel = constrain(vel, -WAFFLE_MAX_LIN_VEL, WAFFLE_MAX_LIN_VEL)
-    else:
-      vel = constrain(vel, -BURGER_MAX_LIN_VEL, BURGER_MAX_LIN_VEL)
+# def checkLinearLimitVelocity(vel):
+#     if turtlebot3_model == "burger":
+#       vel = constrain(vel, -BURGER_MAX_LIN_VEL, BURGER_MAX_LIN_VEL)
+#     elif turtlebot3_model == "waffle" or turtlebot3_model == "waffle_pi":
+#       vel = constrain(vel, -WAFFLE_MAX_LIN_VEL, WAFFLE_MAX_LIN_VEL)
+#     else:
+#       vel = constrain(vel, -BURGER_MAX_LIN_VEL, BURGER_MAX_LIN_VEL)
 
-    return vel
+#     return vel
 
-def checkAngularLimitVelocity(vel):
-    if turtlebot3_model == "burger":
-      vel = constrain(vel, -BURGER_MAX_ANG_VEL, BURGER_MAX_ANG_VEL)
-    elif turtlebot3_model == "waffle" or turtlebot3_model == "waffle_pi":
-      vel = constrain(vel, -WAFFLE_MAX_ANG_VEL, WAFFLE_MAX_ANG_VEL)
-    else:
-      vel = constrain(vel, -BURGER_MAX_ANG_VEL, BURGER_MAX_ANG_VEL)
+# def checkAngularLimitVelocity(vel):
+#     if turtlebot3_model == "burger":
+#       vel = constrain(vel, -BURGER_MAX_ANG_VEL, BURGER_MAX_ANG_VEL)
+#     elif turtlebot3_model == "waffle" or turtlebot3_model == "waffle_pi":
+#       vel = constrain(vel, -WAFFLE_MAX_ANG_VEL, WAFFLE_MAX_ANG_VEL)
+#     else:
+#       vel = constrain(vel, -BURGER_MAX_ANG_VEL, BURGER_MAX_ANG_VEL)
 
-    return vel
+#     return vel
 
 if __name__=="__main__":
     if os.name != 'nt':
@@ -208,10 +214,10 @@ if __name__=="__main__":
 
             twist = Twist()
 
-            control_linear_vel = makeSimpleProfile(control_linear_vel, target_linear_vel, (LIN_VEL_STEP_SIZE/2.0))
+            control_linear_vel = target_linear_vel
             twist.linear.x = control_linear_vel; twist.linear.y = 0.0; twist.linear.z = 0.0
 
-            control_angular_vel = makeSimpleProfile(control_angular_vel, target_angular_vel, (ANG_VEL_STEP_SIZE/2.0))
+            control_angular_vel = target_angular_vel
             twist.angular.x = 0.0; twist.angular.y = 0.0; twist.angular.z = control_angular_vel
             
             pub.publish(twist)
